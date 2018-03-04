@@ -173,8 +173,6 @@ namespace System.Functional.Monads
             return this;
         }
 
-        
-
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
         /// </summary>
@@ -322,7 +320,8 @@ namespace System.Functional.Monads
     }
 
     /// <summary>
-    /// 
+    /// Extension to perform parsing operations with <see cref="Maybe{TA}"/> instances instead of booleans or tuples, 
+    /// and to add more <see cref="IEnumerable{T}"/> additions for using <see cref="Maybe{TA}"/> instead of null.
     /// </summary>
     public static class MaybePreludeExtensions
     {
