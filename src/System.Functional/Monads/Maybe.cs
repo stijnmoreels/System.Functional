@@ -9,7 +9,6 @@ namespace System.Functional.Monads
     /// <summary>
     /// Static class to reduce the need for generic type annotations when using the Factory Methods <see cref="Just{T}"/> and <see cref="Nothing{T}"/>.
     /// </summary>
-    [DebuggerStepThrough]
     public static class Maybe
     {
         /// <summary>
@@ -34,7 +33,6 @@ namespace System.Functional.Monads
     /// Use static method <see cref="M:System.Functional.Monads.Maybe`1.Just``1(``0)" /> when there's a value present, and <see cref="P:System.Functional.Monads.Maybe`1.Nothing" /> when there isn't.
     /// </summary>
     /// <typeparam name="TA">The type of a.</typeparam>
-    [DebuggerStepThrough]
     public class Maybe<TA> : IEquatable<Maybe<TA>>
     {
         private readonly TA _value;
@@ -175,40 +173,7 @@ namespace System.Functional.Monads
             return this;
         }
 
-        /// <summary>
-        /// Indicates whether the current object is equal to another object of the same type.
-        /// </summary>
-        /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
-        /// <param name="other">An object to compare with this object.</param>
-        public bool Equals(Maybe<TA> other)
-        {
-            if (other is null) return false;
-            if (ReferenceEquals(this, other)) return true;
-            if (!_isPresent && !other._isPresent) return true;
-            return EqualityComparer<TA>.Default.Equals(_value, other._value);
-        }
-
-        /// <summary>
-        /// Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
-        /// <param name="obj">The object to compare with the current object. </param>
-        public override bool Equals(object obj)
-        {
-            if (obj is null) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((Maybe<TA>)obj);
-        }
-
-        /// <summary>
-        /// Serves as the default hash function.
-        /// </summary>
-        /// <returns>A hash code for the current object.</returns>
-        public override int GetHashCode()
-        {
-            return EqualityComparer<TA>.Default.GetHashCode(_value);
-        }
+        
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
@@ -243,12 +208,42 @@ namespace System.Functional.Monads
                 ? $"Just<{typeName}>: " + _value
                 : $"Nothing<{typeName}>";
         }
+
+        /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+        /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+        /// <param name="other">An object to compare with this object.</param>
+        public bool Equals(Maybe<TA> other)
+        {
+            if (other is null) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return EqualityComparer<TA>.Default.Equals(_value, other._value) && _isPresent == other._isPresent;
+        }
+
+        /// <summary>Determines whether the specified object is equal to the current object.</summary>
+        /// <returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
+        /// <param name="obj">The object to compare with the current object. </param>
+        public override bool Equals(object obj)
+        {
+            if (obj is null) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((Maybe<TA>) obj);
+        }
+
+        /// <summary>Serves as the default hash function. </summary>
+        /// <returns>A hash code for the current object.</returns>
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (EqualityComparer<TA>.Default.GetHashCode(_value) * 397) ^ _isPresent.GetHashCode();
+            }
+        }
     }
 
     /// <summary>
     /// Extension on the <see cref="Maybe{TA}"/> type for more easier functional compisition.
     /// </summary>
-    [DebuggerStepThrough]
     public static class MaybeExtensions
     {
         /// <summary>
@@ -329,7 +324,6 @@ namespace System.Functional.Monads
     /// <summary>
     /// 
     /// </summary>
-    [DebuggerStepThrough]
     public static class MaybePreludeExtensions
     {
         public static Maybe<short> TryParseShort(this string str) => short.TryParse(str, out short sho).ThenMaybe(sho);

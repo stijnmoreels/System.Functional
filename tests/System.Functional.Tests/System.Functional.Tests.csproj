@@ -9,4 +9,7 @@
     <ProjectReference Include="..\..\src\System.Functional\System.Functional.csproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <ItemGroup>
+    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.0-beta-2" />
+  </ItemGroup>
 </Project>

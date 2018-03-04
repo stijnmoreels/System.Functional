@@ -90,10 +90,6 @@ namespace System.Functional.Tests.Monads
             return sut.Equals(maybeX.SelectMany(x => maybeY.Select(y => f(x, y))))
                 .ToProperty()
                 .Or(sut.Equals(Maybe<string>.Nothing));
-
-            new string[] { "" }.join
         }
-
-        
     }
 }
