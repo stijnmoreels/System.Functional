@@ -1,3 +1,4 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/99hjtn2cd6akk013?svg=true)](https://ci.appveyor.com/project/stijnmoreels/system-functional)
 
 ## What's in the `System.Functional`?
 
