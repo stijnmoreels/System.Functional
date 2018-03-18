@@ -18,6 +18,8 @@ namespace System.Functional.Tests
 
     public static class Gens
     {
+        public static Arbitrary<Exception> ExceptionGen() => Gen.Constant(new Exception()).ToArbitrary();
+
         public static Arbitrary<Maybe<T>> MaybeGen<T>()
         {
             Gen<Maybe<T>> just = Arb.From<T>().Generator.Select(Maybe.Just);

@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace System.Functional.Monads
 {
@@ -19,7 +17,7 @@ namespace System.Functional.Monads
         public static Maybe<T> Nothing<T>() => Maybe<T>.Nothing;
 
         /// <summary>
-        /// Wraps a given value of type <see cref="T"/> into a <see cref="Maybe{TA}"/>.
+        /// Wraps a given value of type into a <see cref="Maybe{TA}"/>.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="x">The x.</param>
@@ -27,7 +25,6 @@ namespace System.Functional.Monads
         public static Maybe<T> Just<T>(T x) => Maybe<T>.Just(x);
     }
 
-    /// <inheritdoc />
     /// <summary>
     /// Representation for a indication of a possible missing value.
     /// Use static method <see cref="M:System.Functional.Monads.Maybe`1.Just``1(``0)" /> when there's a value present, and <see cref="P:System.Functional.Monads.Maybe`1.Nothing" /> when there isn't.
@@ -325,36 +322,129 @@ namespace System.Functional.Monads
     /// </summary>
     public static class MaybePreludeExtensions
     {
+        /// <summary>
+        /// Tries the parse short.
+        /// </summary>
+        /// <param name="str">The string.</param>
+        /// <returns></returns>
         public static Maybe<short> TryParseShort(this string str) => short.TryParse(str, out short sho).ThenMaybe(sho);
 
+        /// <summary>
+        /// Tries the parse byte.
+        /// </summary>
+        /// <param name="s">The s.</param>
+        /// <returns></returns>
         public static Maybe<byte> TryParseByte(this string s) => byte.TryParse(s, out byte b).ThenMaybe(b);
 
+        /// <summary>
+        /// Tries the parse int.
+        /// </summary>
+        /// <param name="s">The s.</param>
+        /// <returns></returns>
         public static Maybe<int> TryParseInt(this string s) => int.TryParse(s, out int i).ThenMaybe(i);
 
+        /// <summary>
+        /// Tries the parse long.
+        /// </summary>
+        /// <param name="s">The s.</param>
+        /// <returns></returns>
         public static Maybe<long> TryParseLong(this string s) => long.TryParse(s, out long l).ThenMaybe(l);
 
+        /// <summary>
+        /// Tries the parse decimal.
+        /// </summary>
+        /// <param name="s">The s.</param>
+        /// <returns></returns>
         public static Maybe<decimal> TryParseDecimal(this string s) => decimal.TryParse(s, out decimal d).ThenMaybe(d);
 
+        /// <summary>
+        /// Tries the parse float.
+        /// </summary>
+        /// <param name="s">The s.</param>
+        /// <returns></returns>
         public static Maybe<float> TryParseFloat(this string s) => float.TryParse(s, out float f).ThenMaybe(f);
 
+        /// <summary>
+        /// Tries the parse character.
+        /// </summary>
+        /// <param name="s">The s.</param>
+        /// <returns></returns>
         public static Maybe<char> TryParseChar(this string s) => char.TryParse(s, out char c).ThenMaybe(c);
 
+        /// <summary>
+        /// Tries the parse double.
+        /// </summary>
+        /// <param name="s">The s.</param>
+        /// <returns></returns>
         public static Maybe<double> TryParseDouble(this string s) => double.TryParse(s, out double d).ThenMaybe(d);
 
+        /// <summary>
+        /// Firsts the or nothing.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="xs">The xs.</param>
+        /// <returns></returns>
         public static Maybe<T> FirstOrNothing<T>(this IEnumerable<T> xs) => xs.FirstOrDefault().AsMaybe();
 
+        /// <summary>
+        /// Firsts the or nothing.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="xs">The xs.</param>
+        /// <param name="f">The f.</param>
+        /// <returns></returns>
         public static Maybe<T> FirstOrNothing<T>(this IEnumerable<T> xs, Func<T, bool> f) => xs.FirstOrDefault(f).AsMaybe();
 
+        /// <summary>
+        /// Lasts the or nothing.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="xs">The xs.</param>
+        /// <returns></returns>
         public static Maybe<T> LastOrNothing<T>(this IEnumerable<T> xs) => xs.LastOrDefault().AsMaybe();
 
-        public static Maybe<T> LastOrNothing<T>(this IEnumerable<T> xs, Func<T, bool> f) => xs.LastOrDefault(f).AsMaybe(); 
+        /// <summary>
+        /// Lasts the or nothing.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="xs">The xs.</param>
+        /// <param name="f">The f.</param>
+        /// <returns></returns>
+        public static Maybe<T> LastOrNothing<T>(this IEnumerable<T> xs, Func<T, bool> f) => xs.LastOrDefault(f).AsMaybe();
 
+        /// <summary>
+        /// Singles the or nothing.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="xs">The xs.</param>
+        /// <returns></returns>
         public static Maybe<T> SingleOrNothing<T>(this IEnumerable<T> xs) => xs.SingleOrDefault().AsMaybe();
 
+        /// <summary>
+        /// Singles the or nothing.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="xs">The xs.</param>
+        /// <param name="f">The f.</param>
+        /// <returns></returns>
         public static Maybe<T> SingleOrNothing<T>(this IEnumerable<T> xs, Func<T, bool> f) => xs.SingleOrDefault(f).AsMaybe();
 
+        /// <summary>
+        /// Elements at or nothing.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="xs">The xs.</param>
+        /// <param name="i">The i.</param>
+        /// <returns></returns>
         public static Maybe<T> ElementAtOrNothing<T>(this IEnumerable<T> xs, int i) => xs.ElementAtOrDefault(i).AsMaybe();
 
+        /// <summary>
+        /// Chooses the specified f.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="xs">The xs.</param>
+        /// <param name="f">The f.</param>
+        /// <returns></returns>
         public static IEnumerable<T> Choose<T>(this IEnumerable<T> xs, Func<T, Maybe<T>> f)
         {
             return xs.Select(f).Aggregate(

@@ -5,17 +5,19 @@
 #r "FakeLib.dll"
 
 open Fake 
+open Fake.Git
 open Fake.AssemblyInfoFile
 open Fake.ReleaseNotesHelper
 open Fake.Testing
+open Fake.DocuHelper
 
 open System
+open System.IO
+open Fake.AppVeyor
 
 // Information about each project is used
 //  - for version and project name in generated AssemblyInfo file
 //  - by the generated NuGet package 
-//  - to run tests and to publish documentation on GitHub gh-pages
-//  - for documentation, you also need to edit info in "docs/tools/generate.fsx"
 
 type ProjectInfo =
   { /// The name of the project 
@@ -26,57 +28,108 @@ type ProjectInfo =
     Summary : string
   }
 
-//File that contains the release notes.
 let releaseNotes = "System.Functional Release Notes.md"
+let tags = "Functional Extensions Chaining Declaritive"
+let gitOwner = "stijnmoreels"
+let gitHome = sprintf "ssh://github.com/%s" gitOwner
+let projectName = "System.Functional"
+let summary = "System.Functional is a minimum extension library to write more readable functional code in C#."
+let solution = projectName + ".sln"
 
 // Read additional information from the release notes document
 Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 let release = LoadReleaseNotes releaseNotes
 
+let output = "./bin/"
+let docs = "./docs/"
+
+let isAppVeyorBuild = buildServer = BuildServer.AppVeyor
 let buildDate = DateTime.UtcNow
 let buildVersion = 
     let isVersionTag tag = Version.TryParse tag |> fst
-    release.NugetVersion
+    let hasRepoVersionTag = isAppVeyorBuild && AppVeyorEnvironment.RepoTag && isVersionTag AppVeyorEnvironment.RepoTagName
+    let assemblyVersion = if hasRepoVersionTag then AppVeyorEnvironment.RepoTagName else release.NugetVersion
+    if isAppVeyorBuild then sprintf "%s-b%s" assemblyVersion AppVeyorEnvironment.BuildNumber
+    else assemblyVersion
 
 let packages =
   [
-    { Name = "System.Functional"
-      Summary = "System.Functional is a minimum extension library to write more readable functional code in C#."
+    { Name = projectName
+      Summary = summary
     }
   ]
 
+Target "Clean" <| fun _ ->
+    CleanDirs [output]
 
-// Generate assembly info files with the right version & up-to-date information
-Target "AssemblyInfo" (fun _ ->
+Target "AssemblyInfo" <| fun _ ->
     packages |> Seq.iter (fun package ->
-    let fileName = "src/" + package.Name + "/AssemblyInfo.fs"
+    let fileName = "src/" + package.Name + "/AssemblyInfo.cs"
     CreateCSharpAssemblyInfo fileName
         ([Attribute.Title package.Name
           Attribute.Product package.Name
           Attribute.Description package.Summary
           Attribute.Version release.AssemblyVersion
           Attribute.FileVersion release.AssemblyVersion
-        ] @ ([]))
+        ])
     )
-)
 
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
-let isDotnetSDKInstalled = try Shell.Exec("dotnet", "--version") = 0 with _ -> false
 let shellExec cmd args dir =
     printfn "%s %s" cmd args
     Shell.Exec(cmd, args, dir) |> assertExitCodeZero
 
+Target "Restore" <| fun _ ->
+    shellExec "dotnet" (sprintf "restore /p:Version=%s %s" buildVersion solution) "."
+
 Target "Build" <| fun _ ->
-    shellExec "dotnet" (sprintf "restore /p:Version=%s System.Functional.sln" buildVersion) "."
+    shellExec "dotnet" (sprintf "build --no-restore --configuration Release") "."
+    !! (sprintf "./src/%s/bin/Release/**/*.*" projectName)
+    |> Copy output
 
 Target "RunTests" <| fun _ ->
-    shellExec "dotnet" "xunit" "tests/System.Functional.Tests"
+    shellExec "dotnet" "xunit" <| sprintf "tests/%s.Tests" projectName
 
-Target "Nuget" <| fun _ ->
-    shellExec "dotnet" (sprintf "pack /p:Version=%s --configuration Release" buildVersion) "src/System.Functional"
+// Target "Release" <| fun _ ->
+//     let user =
+//         match getBuildParam "github-user" with
+//         | s when not (String.IsNullOrWhiteSpace s) -> s
+//         | _ -> getUserInput "Username: "
+//     let pw =
+//         match getBuildParam "github-pw" with
+//         | s when not (String.IsNullOrWhiteSpace s) -> s
+//         | _ -> getUserPassword "Password: "
+//     let remote =
+//         Git.CommandHelper.getGitResult "" "remote -v"
+//         |> Seq.filter (fun (s: string) -> s.EndsWith("(push)"))
+//         |> Seq.tryFind (fun (s: string) -> s.Contains(gitOwner + "/" + gitName))
+//         |> function None -> gitHome + "/" + gitName | Some (s: string) -> s.Split().[0]
 
-"Build"
+//     StageAll ""
+//     Git.Commit.Commit "" (sprintf "Bump version to %s" release.NugetVersion)
+//     Branches.pushBranch "" remote (Information.getBranchName "")
+
+//     Branches.tag "" release.NugetVersion
+//     Branches.pushTag "" remote release.NugetVersion
+
+//     // release on github
+//     createClient user pw
+//     |> createDraft gitOwner gitName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes
+//     // to upload a file: |> uploadFile "PATH_TO_FILE"
+//     |> releaseDraft
+//     |> Async.RunSynchronously
+
+Target "Docs" <| fun _ ->
+    let input = sprintf "./%s/%s.xml" output projectName
+    shellExec 
+        "./packages/Vsxmd/tools/Vsxmd.exe" 
+        (sprintf "%s %s%s" input docs "api-reference.md")
+        "."
+
+"Clean"
+==> "Restore"
+==> "Build"
 ==> "RunTests"
-==> "Nuget"
+==> "Docs"
 
 RunTargetOrDefault "RunTests"

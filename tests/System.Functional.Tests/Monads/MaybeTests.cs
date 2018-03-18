@@ -1,6 +1,4 @@
-﻿using System;
-using System.Functional.Monads;
-using System.Linq;
+﻿using System.Functional.Monads;
 using FsCheck;
 using FsCheck.Xunit;
 using Xunit;
