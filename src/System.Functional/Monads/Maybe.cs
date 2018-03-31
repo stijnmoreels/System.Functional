@@ -10,7 +10,7 @@ namespace System.Functional.Monads
     public static class Maybe
     {
         /// <summary>
-        /// Creates a missing value representation for the given type <see cref="T"/>.
+        /// Creates a missing value representation for the given type <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -55,13 +55,13 @@ namespace System.Functional.Monads
         }
 
         /// <summary>
-        /// Gets a missing value representation for the given type <see cref="TA"/>.
+        /// Gets a missing value representation for the given type <typeparamref name="TA"/>.
         /// </summary>
         /// <value>The nothing branch.</value>
         public static Maybe<TA> Nothing => new Maybe<TA>();
 
         /// <summary>
-        /// Wraps a given value of type <see cref="T"/> into a <see cref="Maybe{TA}"/>.
+        /// Wraps a given value of type <typeparamref name="T"/> into a <see cref="Maybe{TA}"/>.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="x">The x.</param>
@@ -69,7 +69,7 @@ namespace System.Functional.Monads
         public static Maybe<T> Just<T>(T x) => new Maybe<T>(x);
 
         /// <summary>
-        /// Projects the wrapped <see cref="TA"/> value to a given function <paramref name="f"/> when there's a value present for this instance.
+        /// Projects the wrapped <typeparamref name="TA"/> value to a given function <paramref name="f"/> when there's a value present for this instance.
         /// </summary>
         /// <typeparam name="TB">The type of the b.</typeparam>
         /// <param name="f">The f.</param>
@@ -84,7 +84,7 @@ namespace System.Functional.Monads
         public Maybe<TA> Where(Func<TA, bool> f) => _isPresent && f(_value) ? this : Nothing;
 
         /// <summary>
-        /// Projects the wrapped <see cref="TA"/> value to another value <see cref="TB"/> if there's a value present by using the given function <paramref name="f"/>.
+        /// Projects the wrapped <typeparamref name="TA"/> value to another value <typeparamref name="TB"/> if there's a value present by using the given function <paramref name="f"/>.
         /// </summary>
         /// <typeparam name="TB">The type of the b.</typeparam>
         /// <param name="f">The f.</param>
@@ -114,7 +114,7 @@ namespace System.Functional.Monads
                 : Maybe<TC>.Nothing;
 
         /// <summary>
-        /// Correlates the wrapped values <see cref="TA"/> and <see cref="TB"/> based on matching key selector functions <paramref name="f"/> and <paramref name="g"/>, 
+        /// Correlates the wrapped values <typeparamref name="TA"/> and <typeparamref name="TB"/> based on matching key selector functions <paramref name="f"/> and <paramref name="g"/>, 
         /// using a result selector <paramref name="h"/> to combine both.
         /// </summary>
         /// <typeparam name="TB">The type of the b.</typeparam>
@@ -125,27 +125,31 @@ namespace System.Functional.Monads
         /// <param name="g">The g.</param>
         /// <param name="h">The h.</param>
         /// <returns></returns>
-        public Maybe<TD> Join<TB, TC, TD>(Maybe<TB> y, Func<TA, TC> f, Func<TB, TC> g, Func<TA, TB, TD> h) =>
-            _isPresent && y._isPresent && EqualityComparer<TC>.Default.Equals(f(_value), g(y._value))
-                ? Maybe<TD>.Just(h(_value, y._value))
-                : Maybe<TD>.Nothing;
+        public Maybe<TD> Join<TB, TC, TD>(Maybe<TB> y, Func<TA, TC> f, Func<TB, TC> g, Func<TA, TB, TD> h)
+        {
+            return _isPresent 
+                && y._isPresent 
+                && EqualityComparer<TC>.Default.Equals(f(_value), g(y._value))
+                    ? Maybe<TD>.Just(h(_value, y._value))
+                    : Maybe<TD>.Nothing;
+        }
 
         /// <summary>
-        /// Gets the wrapped <see cref="TA"/> value when there's exists one, otherwise use the given <paramref name="otherwise"/> value.
+        /// Gets the wrapped <typeparamref name="TA"/> value when there's exists one, otherwise use the given <paramref name="otherwise"/> value.
         /// </summary>
         /// <param name="otherwise">The otherwise in case there isn't a value present.</param>
         /// <returns></returns>
         public TA GetOrElse(TA otherwise) => _isPresent ? _value : otherwise;
 
         /// <summary>
-        /// Gets the wrapped <see cref="TA"/> value when there's exists one, otherwise use the given <paramref name="otherwise"/> value.
+        /// Gets the wrapped <typeparamref name="TA"/> value when there's exists one, otherwise use the given <paramref name="otherwise"/> value.
         /// </summary>
         /// <param name="otherwise">The otherwise in case there isn't a value present.</param>
         /// <returns></returns>
         public TA GetOrElse(Lazy<TA> otherwise) => _isPresent ? _value : otherwise.Value;
 
         /// <summary>
-        /// Gets the wrapped <see cref="TA"/> value when there's exists one, otherwise use the given <paramref name="otherwise"/> value.
+        /// Gets the wrapped <typeparamef name="TA"/> value when there's exists one, otherwise use the given <paramref name="otherwise"/> value.
         /// </summary>
         /// <param name="otherwise">The otherwise in case there isn't a value present.</param>
         /// <returns></returns>
@@ -159,8 +163,8 @@ namespace System.Functional.Monads
         public Maybe<TA> OrElse(Maybe<TA> other) => _isPresent ? this : other;
 
         /// <summary>
-        /// Runs a "dead-end" function on the wrapped <see cref="TA"/> value.
-        /// This method can be used to execute "side-effect" functions on the wrapped <see cref="TA"/> value.
+        /// Runs a "dead-end" function on the wrapped <typeparamref name="TA"/> value.
+        /// This method can be used to execute "side-effect" functions on the wrapped <typeparamref name="TA"/> value.
         /// </summary>
         /// <param name="f">The f.</param>
         /// <returns></returns>
@@ -168,6 +172,41 @@ namespace System.Functional.Monads
         {
             if (_isPresent) { f(_value); }
             return this;
+        }
+
+        /// <summary>
+        /// Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+        /// <param name="other">An object to compare with this object.</param>
+        public bool Equals(Maybe<TA> other)
+        {
+            if (other is null) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return EqualityComparer<TA>.Default.Equals(_value, other._value) 
+                && _isPresent == other._isPresent;
+        }
+
+        /// <summary>
+        /// Determines whether the specified object is equal to the current object.
+        /// </summary>
+        /// <returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
+        /// <param name="obj">The object to compare with the current object. </param>
+        public override bool Equals(object obj)
+        {
+            if (obj is null) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((Maybe<TA>) obj);
+        }
+
+        /// <summary>
+        /// Serves as the default hash function. 
+        /// </summary>
+        /// <returns>A hash code for the current object.</returns>
+        public override int GetHashCode()
+        {
+            return _isPresent ? _value.GetHashCode() : 0;
         }
 
         /// <summary>
@@ -203,43 +242,12 @@ namespace System.Functional.Monads
                 ? $"Just<{typeName}>: " + _value
                 : $"Nothing<{typeName}>";
         }
-
-        /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
-        /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
-        /// <param name="other">An object to compare with this object.</param>
-        public bool Equals(Maybe<TA> other)
-        {
-            if (other is null) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return EqualityComparer<TA>.Default.Equals(_value, other._value) && _isPresent == other._isPresent;
-        }
-
-        /// <summary>Determines whether the specified object is equal to the current object.</summary>
-        /// <returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
-        /// <param name="obj">The object to compare with the current object. </param>
-        public override bool Equals(object obj)
-        {
-            if (obj is null) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((Maybe<TA>) obj);
-        }
-
-        /// <summary>Serves as the default hash function. </summary>
-        /// <returns>A hash code for the current object.</returns>
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (EqualityComparer<TA>.Default.GetHashCode(_value) * 397) ^ _isPresent.GetHashCode();
-            }
-        }
     }
 
     /// <summary>
-    /// Extension on the <see cref="Maybe{TA}"/> type for more easier functional compisition.
+    /// Extensions on the <see cref="Maybe{TA}"/> type for more easier functional compisition.
     /// </summary>
-    public static class MaybeExtensions
+    public static class MaybeEx
     {
         /// <summary>
         /// Wraps a given value into a <see cref="Maybe{TA}"/> instance.
@@ -250,7 +258,7 @@ namespace System.Functional.Monads
         public static Maybe<TA> AsMaybe<TA>(this TA x) => Maybe<TA>.Just(x);
 
         /// <summary>
-        /// Only wraps a given value of type <see cref="TA"/> into a <see cref="Maybe{TA}"/> when the given <paramref name="predicate"/> holds.
+        /// Only wraps a given value of type <typeparamref name="TA"/> into a <see cref="Maybe{TA}"/> when the given <paramref name="predicate"/> holds.
         /// </summary>
         /// <typeparam name="TA">The type of a.</typeparam>
         /// <param name="predicate">if set to <c>true</c> [predicate].</param>
@@ -320,7 +328,7 @@ namespace System.Functional.Monads
     /// Extension to perform parsing operations with <see cref="Maybe{TA}"/> instances instead of booleans or tuples, 
     /// and to add more <see cref="IEnumerable{T}"/> additions for using <see cref="Maybe{TA}"/> instead of null.
     /// </summary>
-    public static class MaybePreludeExtensions
+    public static class MaybePreludeEx
     {
         /// <summary>
         /// Tries the parse short.

@@ -2,9 +2,9 @@
 using System.Linq;
 using FsCheck;
 using FsCheck.Xunit;
-using static System.Functional.FunctionalExtensions;
+using static System.Functional.FunctionalEx;
 
-namespace System.Functional.Tests.Extensions
+namespace System.Functional.Tests
 {
     public class FunctionalExtensionsTests
     {

@@ -15,8 +15,8 @@
     <PackageId>System.Functional</PackageId>
     <PackageDescription></PackageDescription>
     <PackageTags>Functional Extensions Chaining Piping Declaritive</PackageTags>
-    <PackageIconUrl>https://github.com/stijnmoreels/blob/master/docs/images/icon.png</PackageIconUrl>
-    <PackageLicenseUrl>https://github.com/stijnmoreels/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/stijnmoreels/System.Functional/master/docs/images/icon.png</PackageIconUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/stijnmoreels/System.Functional/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/stijnmoreels/System.Functional</PackageProjectUrl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">

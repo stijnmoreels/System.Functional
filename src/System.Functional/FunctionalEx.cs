@@ -6,7 +6,7 @@ namespace System.Functional
     /// <summary>
     /// Functional Extensions for the overall development environment.
     /// </summary>
-    public static class FunctionalExtensions
+    public static class FunctionalEx
     {
         /// <summary>
         /// Identity function.
@@ -300,18 +300,16 @@ namespace System.Functional
         /// <typeparam name="TEx">The type of the ex.</typeparam>
         /// <param name="x">The x.</param>
         /// <param name="f">The f.</param>
-        /// <param name="logger">The logger.</param>
         /// <returns></returns>
-        public static Maybe<TB> Try<TA, TB, TEx>(this TA x, Func<TA, TB> f, Action<TEx> logger = null) where TEx : Exception
+        public static Either<TB, TEx> Try<TA, TB, TEx>(this TA x, Func<TA, TB> f) where TEx : Exception
         {
             try
             {
-                return Maybe.Just(f(x));
+                return Either.Left<TB, TEx>(f(x));
             }
             catch (TEx ex)
             {
-                logger?.Invoke(ex);
-                return Maybe<TB>.Nothing;
+                return Either.Right<TB, TEx>(ex);
             }
         }
 
