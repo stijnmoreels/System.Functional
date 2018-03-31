@@ -8,8 +8,9 @@ artifacts:
   - path: bin\*.nupkg
 deploy:
   provider: NuGet
+  server:                  # remove to push to NuGet.org
   api_key:
-    secure: 36uca7cn87q4jnsxiphwrm8v
+    secure: 1zW3Ncm1E2FKxgCY20uJEk/BdfC0YPpwAVpAiuXYZYQ=s
   skip_symbols: false
   symbol_server:           # remove to push symbols to SymbolSource.org
   artifact: /.*\.nupkg/
