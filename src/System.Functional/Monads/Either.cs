@@ -321,7 +321,7 @@ namespace System.Functional.Monads
         /// </returns>
         public static bool operator ==(Either<TLeft, TRight> x, Either<TLeft, TRight> y)
         {
-            return !(x is null) && x.Equals(y);
+            return Equals(x, y);
         }
 
         /// <summary>
@@ -332,7 +332,7 @@ namespace System.Functional.Monads
         /// <returns>The result of the operator.</returns>
         public static bool operator !=(Either<TLeft, TRight> x, Either<TLeft, TRight> y)
         {
-            return !(x == y);
+            return !Equals(x, y);
         }
 
         /// <summary>

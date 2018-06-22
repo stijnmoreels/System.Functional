@@ -119,17 +119,9 @@ Target "RunTests" <| fun _ ->
 //     |> releaseDraft
 //     |> Async.RunSynchronously
 
-Target "Docs" <| fun _ ->
-    let input = sprintf "./%s/%s.xml" output projectName
-    shellExec 
-        "./packages/Vsxmd/tools/Vsxmd.exe" 
-        (sprintf "%s %s%s" input docs "api-reference.md")
-        "."
-
 "Clean"
 ==> "Restore"
 ==> "Build"
 ==> "RunTests"
-==> "Docs"
 
 RunTargetOrDefault "RunTests"
