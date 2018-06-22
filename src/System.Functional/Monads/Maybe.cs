@@ -217,7 +217,7 @@ namespace System.Functional.Monads
         /// <returns>The result of the operator.</returns>
         public static bool operator ==(Maybe<TA> x, Maybe<TA> y)
         {
-            return !(x is null) && x.Equals(y);
+            return Equals(x, y);
         }
 
         /// <summary>
@@ -228,7 +228,7 @@ namespace System.Functional.Monads
         /// <returns>The result of the operator.</returns>
         public static bool operator !=(Maybe<TA> x, Maybe<TA> y)
         {
-            return !(x == y);
+            return !Equals(x, y);
         }
 
         /// <summary>
