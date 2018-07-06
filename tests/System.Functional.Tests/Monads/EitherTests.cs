@@ -9,18 +9,18 @@ namespace System.Functional.Tests.Monads
         public bool Left_Is_Left(int x)
         {
             // ReSharper disable once EqualExpressionComparison
-            return Either.Left<int, string>(x) == Either.Left<int, string>(x);
+            return Either.Left<int, int>(x) == Either.Left<int, int>(x);
         }
 
         [Property]
-        public bool Right_Is_Right(string x)
+        public bool Right_Is_Right(int x)
         {
             // ReSharper disable once EqualExpressionComparison
-            return Either.Right<int, string>(x) == Either.Right<int, string>(x);
+            return Either.Right<int, int>(x) == Either.Right<int, int>(x);
         }
 
         [Property]
-        public bool Functor_Law_Holds(int x, Func<int, string> f, Func<string, int> g)
+        public bool Functor_Law_Holds(int x, Func<int, int> f, Func<int, int> g)
         {
             return Either.Left<int, byte>(x)
                 .SelectLeft(f)
@@ -37,9 +37,9 @@ namespace System.Functional.Tests.Monads
         }
 
         [DomainProperty]
-        public bool Monadic_Law_Holds(byte x, Func<byte, Either<int, string>> f)
+        public bool Monadic_Law_Holds(byte x, Func<byte, Either<int, int>> f)
         {
-            return Either.Left<byte, string>(x).SelectManyLeft(f) == f(x);
+            return Either.Left<byte, int>(x).SelectManyLeft(f) == f(x);
         }
     }
 }

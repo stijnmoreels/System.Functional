@@ -50,9 +50,19 @@ namespace System.Functional.Monads
         /// <param name="value">The value.</param>
         private Maybe(TA value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             _isPresent = true;
             _value = value;
         }
+
+        /// <summary>
+        /// Gets in a unsafe (could throw if not present) manner the value wrapped in the <see cref="Maybe{TA}"/>.
+        /// </summary>
+        public TA UnsafeGet => _isPresent ? _value : throw new InvalidOperationException("No value present in this instance (Nothing)");
 
         /// <summary>
         /// Gets a missing value representation for the given type <typeparamref name="TA"/>.
