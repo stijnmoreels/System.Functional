@@ -4,8 +4,8 @@ using System.Reflection;
 [assembly: AssemblyTitleAttribute("System.Functional")]
 [assembly: AssemblyProductAttribute("System.Functional")]
 [assembly: AssemblyDescriptionAttribute("System.Functional is a minimum extension library to write more readable functional code in C#.")]
-[assembly: AssemblyVersionAttribute("1.0.0")]
-[assembly: AssemblyFileVersionAttribute("1.0.0")]
+[assembly: AssemblyVersionAttribute("1.0.2")]
+[assembly: AssemblyFileVersionAttribute("1.0.2")]
 namespace System {
     internal static class AssemblyVersionInformation {
         internal const System.String AssemblyTitle = "System.Functional";
