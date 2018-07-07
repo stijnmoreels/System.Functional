@@ -11,7 +11,7 @@ namespace System {
         internal const System.String AssemblyTitle = "System.Functional";
         internal const System.String AssemblyProduct = "System.Functional";
         internal const System.String AssemblyDescription = "System.Functional is a minimum extension library to write more readable functional code in C#.";
-        internal const System.String AssemblyVersion = "1.0.0";
-        internal const System.String AssemblyFileVersion = "1.0.0";
+        internal const System.String AssemblyVersion = "1.0.2";
+        internal const System.String AssemblyFileVersion = "1.0.2";
     }
 }
