@@ -13,7 +13,7 @@
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <PackageId>system-functional</PackageId>
-    <PackageVersion>1.0.1</PackageVersion>
+    <PackageVersion>1.0.2</PackageVersion>
     <PackageDescription>
     </PackageDescription>
     <PackageTags>Functional Extensions Chaining Piping Declaritive</PackageTags>
