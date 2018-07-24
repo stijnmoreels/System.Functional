@@ -460,13 +460,14 @@ namespace System.Functional.Monads
         /// Chooses the specified f.
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <param name="xs">The xs.</param>
         /// <param name="f">The f.</param>
         /// <returns></returns>
-        public static IEnumerable<T> Choose<T>(this IEnumerable<T> xs, Func<T, Maybe<T>> f)
+        public static IEnumerable<TResult> Choose<T, TResult>(this IEnumerable<T> xs, Func<T, Maybe<TResult>> f)
         {
             return xs.Select(f).Aggregate(
-                new Collection<T>(), 
+                new Collection<TResult>(), 
                 (acc, x) => { x.Do(acc.Add); return acc; });
         }
     }
