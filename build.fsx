@@ -45,7 +45,7 @@ let docs = "./docs/"
 
 let isAppVeyorBuild = buildServer = BuildServer.AppVeyor
 let buildDate = DateTime.UtcNow
-let buildVersion = 
+let buildVersion =
     let isVersionTag tag = Version.TryParse tag |> fst
     let hasRepoVersionTag = isAppVeyorBuild && AppVeyorEnvironment.RepoTag && isVersionTag AppVeyorEnvironment.RepoTagName
     let assemblyVersion = if hasRepoVersionTag then AppVeyorEnvironment.RepoTagName else release.NugetVersion

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,6 +28,52 @@ namespace System.Functional
         public static Task<TA> Const<TA>(this Task task, TA value)
         {
             return task.ContinueWith(t => value);
+        }
+
+        /// <summary>
+        /// Catch the incoming task by running a mapper function on the thrown exception.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TError"></typeparam>
+        /// <param name="task"></param>
+        /// <param name="onError"></param>
+        /// <returns></returns>
+        public static Task<T> Catch<T, TError>(this Task<T> task, Func<TError, T> onError) where TError : Exception
+        {
+            var tcs = new TaskCompletionSource<T>();
+            task.ContinueWith(innerTask =>
+            {
+                if (innerTask.IsFaulted && innerTask?.Exception?.InnerException is TError)
+                    tcs.SetResult(onError((TError)innerTask.Exception.InnerException));
+                else if (innerTask.IsCanceled)
+                    tcs.SetCanceled();
+                else if (innerTask.IsFaulted)
+                    tcs.SetException(innerTask?.Exception?.InnerException ?? throw new InvalidOperationException());
+                else
+                    tcs.SetResult(innerTask.Result);
+            });
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Transforms a list of <see cref="Task{TResult}"/>'s into a <see cref="Task{TResult}"/> of a list.
+        /// </summary>
+        /// <typeparam name="TA"></typeparam>
+        /// <param name="xs"></param>
+        /// <returns></returns>
+        public static Task<IEnumerable<TA>> Sequence<TA>(this IEnumerable<Task<TA>> xs) => Task.WhenAll(xs).Select(x => x.AsEnumerable());
+
+        /// <summary>
+        /// Transforms a binding function to tasks on a list of <see cref="Task{TResult}"/>'s into a <see cref="Task{TResult}"/> of a list.
+        /// </summary>
+        /// <typeparam name="TA"></typeparam>
+        /// <typeparam name="TB"></typeparam>
+        /// <param name="xs"></param>
+        /// <param name="f"></param>
+        /// <returns></returns>
+        public static Task<IEnumerable<TB>> Traverse<TA, TB>(this IEnumerable<Task<TA>> xs, Func<TA, Task<TB>> f)
+        {
+            return Task.WhenAll(xs).SelectMany(x => Task.WhenAll(x.Select(f)).Select(y => y.AsEnumerable()));
         }
 
         /// <summary>
@@ -150,7 +197,28 @@ namespace System.Functional
         /// <returns></returns>
         public static Task<TB> SelectMany<TA, TB>(this Task<TA> source, Func<TA, Task<TB>> binder)
         {
-            return source.ContinueWith(xTask => binder(xTask.Result)).Unwrap();
+            var tcs = new TaskCompletionSource<TB>();
+            source.ContinueWith(delegate
+            {
+                if (source.IsFaulted) tcs.TrySetException(source.Exception.InnerExceptions);
+                else if (source.IsCanceled) tcs.TrySetCanceled();
+                else
+                {
+                    try
+                    {
+                        var t = binder(source.Result);
+                        if (t == null) tcs.TrySetCanceled();
+                        else t.ContinueWith(delegate
+                        {
+                            if (t.IsFaulted) tcs.TrySetException(t.Exception.InnerExceptions);
+                            else if (t.IsCanceled) tcs.TrySetCanceled();
+                            else tcs.TrySetResult(t.Result);
+                        }, TaskContinuationOptions.ExecuteSynchronously);
+                    }
+                    catch (Exception exc) { tcs.TrySetException(exc); }
+                }
+            }, TaskContinuationOptions.ExecuteSynchronously);
+            return tcs.Task;
         }
 
         /// <summary>
@@ -163,7 +231,14 @@ namespace System.Functional
         /// <returns></returns>
         public static Task<TB> Select<TA, TB>(this Task<TA> source, Func<TA, TB> selector)
         {
-            return source.SelectMany(x => selector(x).FromResult());
+            var r = new TaskCompletionSource<TB>();
+            source.ContinueWith(self =>
+            {
+                if (self.IsFaulted) r.SetException(self.Exception.InnerExceptions);
+                else if (self.IsCanceled) r.SetCanceled();
+                else r.SetResult(selector(self.Result));
+            });
+            return r.Task;
         }
 
         /// <summary>

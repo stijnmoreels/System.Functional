@@ -1,4 +1,5 @@
 ﻿using System.Functional.Monads;
+using System.Linq;
 using FsCheck;
 using FsCheck.Xunit;
 using Xunit;
@@ -110,6 +111,15 @@ namespace System.Functional.Tests.Monads
             return sut.Equals(maybeX.SelectMany(x => maybeY.Select(y => f(x, y))))
                 .ToProperty()
                 .Or(sut.Equals(Maybe<int>.Nothing));
+        }
+
+        [Property]
+        public bool Choose_Holds(NonEmptyArray<bool> xs, int value)
+        {
+            return xs.Get
+              .Select(x => x.ThenMaybe(value))
+              .Choose(x => x)
+              .SequenceEqual(Enumerable.Repeat(value, xs.Get.Count(x => x)));
         }
     }
 }
