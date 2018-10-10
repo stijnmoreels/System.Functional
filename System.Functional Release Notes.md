@@ -5,3 +5,7 @@ Initial version
 ### 1.0.2
 
 Monad fix
+
+### 1.0.3
+
+Add ArgumentNull checks

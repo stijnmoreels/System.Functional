@@ -12,7 +12,7 @@ namespace System.Functional.Tests
         public bool Identity_Function_Holds(int x, Func<int, int> f) => Id<int>()(f(x)) == f(Id<int>()(x));
 
         [Property]
-        public bool Const_Function_Holds(string x, int y) => x.Const<int, string>()(y) == Id<string>()(x);
+        public bool Const_Function_Holds(NonNull<string> x, int y) => x.Get.Const<int, string>()(y) == Id<string>()(x.Get);
 
         [Property]
         public bool Compose_Functions_Holds(int x, Func<int, int> f, Func<int, int> g, Func<int, int> h) =>
@@ -25,14 +25,14 @@ namespace System.Functional.Tests
         public bool Apply_Same_As_PipeTo(int x, Func<int, string> f) => f.Apply(x) == x.PipeTo(f);
 
         [Property]
-        public bool Curry_Same_As_Apply(byte x, int y, string z, Func<byte, int, string, int> f) =>
-            f.Curry()(x)(y)(z) == f.Apply(x).Apply(y).Apply(z);
+        public bool Curry_Same_As_Apply(byte x, int y, NonNull<string> z, Func<byte, int, string, int> f) =>
+            f.Curry()(x)(y)(z.Get) == f.Apply(x).Apply(y).Apply(z.Get);
 
         [Property]
-        public Property Null_Check_If_Null_Then(string x, string y)
+        public Property Null_Check_If_Null_Then(string x, NonNull<string> y)
         {
-            string sut = x.IfNullThen(y);
-            return (x == null && sut == y).ToProperty().Or(x != null && sut == x);
+            string sut = x.IfNullThen(y.Get);
+            return (x == null && sut == y.Get).ToProperty().Or(x != null && sut == x);
         }
 
         public Property Try_Returns_Expected_When_Throws(
