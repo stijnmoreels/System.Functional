@@ -22,7 +22,15 @@ namespace System.Functional.Monads
         /// <typeparam name="T"></typeparam>
         /// <param name="x">The x.</param>
         /// <returns></returns>
-        public static Maybe<T> Just<T>(T x) => Maybe<T>.Just(x);
+        public static Maybe<T> Just<T>(T x)
+        {
+            if (x == null)
+            {
+                throw new ArgumentNullException(nameof(x));
+            }
+
+            return Maybe<T>.Just(x);
+        }
     }
 
     /// <summary>
@@ -66,7 +74,15 @@ namespace System.Functional.Monads
         /// <typeparam name="T"></typeparam>
         /// <param name="x">The x.</param>
         /// <returns></returns>
-        public static Maybe<T> Just<T>(T x) => new Maybe<T>(x);
+        public static Maybe<T> Just<T>(T x)
+        {
+            if (x == null)
+            {
+                throw new ArgumentNullException(nameof(x));
+            }
+
+            return new Maybe<T>(x);
+        }
 
         /// <summary>
         /// Projects the wrapped <typeparamref name="TA"/> value to a given function <paramref name="f"/> when there's a value present for this instance.
@@ -74,14 +90,30 @@ namespace System.Functional.Monads
         /// <typeparam name="TB">The type of the b.</typeparam>
         /// <param name="f">The f.</param>
         /// <returns></returns>
-        public Maybe<TB> SelectMany<TB>(Func<TA, Maybe<TB>> f) => _isPresent ? f(_value) : Maybe<TB>.Nothing;
+        public Maybe<TB> SelectMany<TB>(Func<TA, Maybe<TB>> f)
+        {
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
+            return _isPresent ? f(_value) : Maybe<TB>.Nothing;
+        }
 
         /// <summary>
         /// Filters a <see cref="Maybe{TA}"/> based on a given predicate <paramref name="f"/>.
         /// </summary>
         /// <param name="f">The f.</param>
         /// <returns></returns>
-        public Maybe<TA> Where(Func<TA, bool> f) => _isPresent && f(_value) ? this : Nothing;
+        public Maybe<TA> Where(Func<TA, bool> f)
+        {
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
+            return _isPresent && f(_value) ? this : Nothing;
+        }
 
         /// <summary>
         /// Projects the wrapped <typeparamref name="TA"/> value to another value <typeparamref name="TB"/> if there's a value present by using the given function <paramref name="f"/>.
@@ -89,7 +121,15 @@ namespace System.Functional.Monads
         /// <typeparam name="TB">The type of the b.</typeparam>
         /// <param name="f">The f.</param>
         /// <returns></returns>
-        public Maybe<TB> Select<TB>(Func<TA, TB> f) => _isPresent ? Maybe<TB>.Just(f(_value)) : Maybe<TB>.Nothing;
+        public Maybe<TB> Select<TB>(Func<TA, TB> f)
+        {
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
+            return _isPresent ? Maybe<TB>.Just(f(_value)) : Maybe<TB>.Nothing;
+        }
 
         /// <summary>
         /// Applies an aggregator function <paramref name="f"/> over this <see cref="Maybe{TA}"/> instance when there's a value present, using a initial <paramref name="seed"/> value.
@@ -98,7 +138,20 @@ namespace System.Functional.Monads
         /// <param name="seed">The seed.</param>
         /// <param name="f">The f.</param>
         /// <returns></returns>
-        public TB Aggregate<TB>(TB seed, Func<TB, TA, TB> f) => _isPresent ? f(seed, _value) : seed;
+        public TB Aggregate<TB>(TB seed, Func<TB, TA, TB> f)
+        {
+            if (seed == null)
+            {
+                throw new ArgumentNullException(nameof(seed));
+            }
+
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
+            return _isPresent ? f(seed, _value) : seed;
+        }
 
         /// <summary>
         /// Applies a given function <paramref name="f"/> over two instances of <see cref="Maybe"/> when there's a value present for both.
@@ -108,10 +161,22 @@ namespace System.Functional.Monads
         /// <param name="y">The y.</param>
         /// <param name="f">The f.</param>
         /// <returns></returns>
-        public Maybe<TC> Zip<TB, TC>(Maybe<TB> y, Func<TA, TB, TC> f) => 
-            _isPresent && y._isPresent 
-                ? Maybe<TC>.Just(f(_value, y._value)) 
+        public Maybe<TC> Zip<TB, TC>(Maybe<TB> y, Func<TA, TB, TC> f)
+        {
+            if (y == null)
+            {
+                throw new ArgumentNullException(nameof(y));
+            }
+
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
+            return _isPresent && y._isPresent
+                ? Maybe<TC>.Just(f(_value, y._value))
                 : Maybe<TC>.Nothing;
+        }
 
         /// <summary>
         /// Correlates the wrapped values <typeparamref name="TA"/> and <typeparamref name="TB"/> based on matching key selector functions <paramref name="f"/> and <paramref name="g"/>, 
@@ -127,6 +192,26 @@ namespace System.Functional.Monads
         /// <returns></returns>
         public Maybe<TD> Join<TB, TC, TD>(Maybe<TB> y, Func<TA, TC> f, Func<TB, TC> g, Func<TA, TB, TD> h)
         {
+            if (y == null)
+            {
+                throw new ArgumentNullException(nameof(y));
+            }
+
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
+            if (g == null)
+            {
+                throw new ArgumentNullException(nameof(g));
+            }
+
+            if (h == null)
+            {
+                throw new ArgumentNullException(nameof(h));
+            }
+
             return _isPresent 
                 && y._isPresent 
                 && EqualityComparer<TC>.Default.Equals(f(_value), g(y._value))
@@ -146,21 +231,45 @@ namespace System.Functional.Monads
         /// </summary>
         /// <param name="otherwise">The otherwise in case there isn't a value present.</param>
         /// <returns></returns>
-        public TA GetOrElse(Lazy<TA> otherwise) => _isPresent ? _value : otherwise.Value;
+        public TA GetOrElse(Lazy<TA> otherwise)
+        {
+            if (otherwise == null)
+            {
+                throw new ArgumentNullException(nameof(otherwise));
+            }
+
+            return _isPresent ? _value : otherwise.Value;
+        }
 
         /// <summary>
         /// Gets the wrapped <typeparamef name="TA"/> value when there's exists one, otherwise use the given <paramref name="otherwise"/> value.
         /// </summary>
         /// <param name="otherwise">The otherwise in case there isn't a value present.</param>
         /// <returns></returns>
-        public TA GetOrElse(Func<TA> otherwise) => _isPresent ? _value : otherwise();
+        public TA GetOrElse(Func<TA> otherwise)
+        {
+            if (otherwise == null)
+            {
+                throw new ArgumentNullException(nameof(otherwise));
+            }
+
+            return _isPresent ? _value : otherwise();
+        }
 
         /// <summary>
         /// Switch to another <see cref="Maybe{TA}"/> instance when there's no value present for this instance.
         /// </summary>
         /// <param name="other">The other <see cref="Maybe{TA}"/> instance.</param>
         /// <returns></returns>
-        public Maybe<TA> OrElse(Maybe<TA> other) => _isPresent ? this : other;
+        public Maybe<TA> OrElse(Maybe<TA> other)
+        {
+            if (other == null)
+            {
+                throw new ArgumentNullException(nameof(other));
+            }
+
+            return _isPresent ? this : other;
+        }
 
         /// <summary>
         /// Runs a "dead-end" function on the wrapped <typeparamref name="TA"/> value.
@@ -170,7 +279,15 @@ namespace System.Functional.Monads
         /// <returns></returns>
         public Maybe<TA> Do(Action<TA> f)
         {
-            if (_isPresent) { f(_value); }
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
+            if (_isPresent)
+            {
+                f(_value);
+            }
             return this;
         }
 
@@ -255,7 +372,15 @@ namespace System.Functional.Monads
         /// <typeparam name="TA">The type of a.</typeparam>
         /// <param name="x">The x.</param>
         /// <returns></returns>
-        public static Maybe<TA> AsMaybe<TA>(this TA x) => Maybe<TA>.Just(x);
+        public static Maybe<TA> AsMaybe<TA>(this TA x)
+        {
+            if (x == null)
+            {
+                throw new ArgumentNullException(nameof(x));
+            }
+
+            return Maybe<TA>.Just(x);
+        }
 
         /// <summary>
         /// Only wraps a given value of type <typeparamref name="TA"/> into a <see cref="Maybe{TA}"/> when the given <paramref name="predicate"/> holds.
@@ -264,7 +389,15 @@ namespace System.Functional.Monads
         /// <param name="predicate">if set to <c>true</c> [predicate].</param>
         /// <param name="x">The x.</param>
         /// <returns></returns>
-        public static Maybe<TA> ThenMaybe<TA>(this bool predicate, TA x) => predicate ? Maybe.Just(x) : Maybe<TA>.Nothing;
+        public static Maybe<TA> ThenMaybe<TA>(this bool predicate, TA x)
+        {
+            if (x == null)
+            {
+                throw new ArgumentNullException(nameof(x));
+            }
+
+            return predicate ? Maybe.Just(x) : Maybe<TA>.Nothing;
+        }
 
         /// <summary>
         /// Applies the <see cref="Maybe{TA}"/> function to a given <see cref="Maybe{TA}"/> instance.
@@ -274,7 +407,44 @@ namespace System.Functional.Monads
         /// <param name="maybeF">The maybe f.</param>
         /// <param name="maybeX">The maybe x.</param>
         /// <returns></returns>
-        public static Maybe<TB> Apply<TA, TB>(this Maybe<Func<TA, TB>> maybeF, Maybe<TA> maybeX) => maybeF.SelectMany(maybeX.Select);
+        public static Maybe<TB> Apply<TA, TB>(this Maybe<Func<TA, TB>> maybeF, Maybe<TA> maybeX)
+        {
+            if (maybeF == null)
+            {
+                throw new ArgumentNullException(nameof(maybeF));
+            }
+
+            if (maybeX == null)
+            {
+                throw new ArgumentNullException(nameof(maybeX));
+            }
+
+            return maybeF.SelectMany(maybeX.Select);
+        }
+
+        /// <summary>
+        /// Applies the optional value of a function to a specified optional value.
+        /// </summary>
+        /// <typeparam name="TA"></typeparam>
+        /// <typeparam name="TB"></typeparam>
+        /// <typeparam name="TC"></typeparam>
+        /// <param name="maybeF"></param>
+        /// <param name="maybeX"></param>
+        /// <returns></returns>
+        public static Maybe<Func<TB, TC>> Apply<TA, TB, TC>(this Maybe<Func<TA, TB, TC>> maybeF, Maybe<TA> maybeX)
+        {
+            if (maybeF == null)
+            {
+                throw new ArgumentNullException(nameof(maybeF));
+            }
+
+            if (maybeX == null)
+            {
+                throw new ArgumentNullException(nameof(maybeX));
+            }
+
+            return maybeF.SelectMany(f => maybeX.Select(f.Apply));
+        }
 
         /// <summary>
         /// Lifts the given function to the world of <see cref="Maybe{TA}"/> instances, (a -> b -> c) to (M a -> M b -> M c).
@@ -286,8 +456,25 @@ namespace System.Functional.Monads
         /// <param name="xMaybe">The x maybe.</param>
         /// <param name="yMaybe">The y maybe.</param>
         /// <returns></returns>
-        public static Maybe<TC> Lift<TA, TB, TC>(this Func<TA, TB, TC> f, Maybe<TA> xMaybe, Maybe<TB> yMaybe) => 
-            xMaybe.SelectMany(x => yMaybe.Select(y => f(x, y)));
+        public static Maybe<TC> Lift<TA, TB, TC>(this Func<TA, TB, TC> f, Maybe<TA> xMaybe, Maybe<TB> yMaybe)
+        {
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
+            if (xMaybe == null)
+            {
+                throw new ArgumentNullException(nameof(xMaybe));
+            }
+
+            if (yMaybe == null)
+            {
+                throw new ArgumentNullException(nameof(yMaybe));
+            }
+
+            return xMaybe.SelectMany(x => yMaybe.Select(y => f(x, y)));
+        }
 
         /// <summary>
         /// Lifts the given function to the world of <see cref="Maybe{TA}"/> instances, (a -> b -> c -> d) to (M a -> M b -> M c -> M d).
@@ -301,8 +488,30 @@ namespace System.Functional.Monads
         /// <param name="yMaybe">The y maybe.</param>
         /// <param name="zMaybe">The z maybe.</param>
         /// <returns></returns>
-        public static Maybe<TD> Lift<TA, TB, TC, TD>(this Func<TA, TB, TC, TD> f, Maybe<TA> xMaybe, Maybe<TB> yMaybe, Maybe<TC> zMaybe) => 
-            xMaybe.SelectMany(x => yMaybe.SelectMany(y => zMaybe.Select(z => f(x, y, z))));
+        public static Maybe<TD> Lift<TA, TB, TC, TD>(this Func<TA, TB, TC, TD> f, Maybe<TA> xMaybe, Maybe<TB> yMaybe, Maybe<TC> zMaybe)
+        {
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
+            if (xMaybe == null)
+            {
+                throw new ArgumentNullException(nameof(xMaybe));
+            }
+
+            if (yMaybe == null)
+            {
+                throw new ArgumentNullException(nameof(yMaybe));
+            }
+
+            if (zMaybe == null)
+            {
+                throw new ArgumentNullException(nameof(zMaybe));
+            }
+
+            return xMaybe.SelectMany(x => yMaybe.SelectMany(y => zMaybe.Select(z => f(x, y, z))));
+        }
 
         /// <summary>
         /// Unwraps a double wrapped <see cref="Maybe{TA}"/> to a single <see cref="Maybe{TA}"/> instance.
@@ -310,7 +519,15 @@ namespace System.Functional.Monads
         /// <typeparam name="TA">The type of a.</typeparam>
         /// <param name="x">The x.</param>
         /// <returns></returns>
-        public static Maybe<TA> Flatten<TA>(this Maybe<Maybe<TA>> x) => x.GetOrElse(Maybe<TA>.Nothing);
+        public static Maybe<TA> Flatten<TA>(this Maybe<Maybe<TA>> x)
+        {
+            if (x == null)
+            {
+                throw new ArgumentNullException(nameof(x));
+            }
+
+            return x.GetOrElse(Maybe<TA>.Nothing);
+        }
 
         /// <summary>
         /// Bind composition (cross-world) functions from (a -> M b, b -> M c) to (a -> M c).
@@ -321,7 +538,65 @@ namespace System.Functional.Monads
         /// <param name="f">The f.</param>
         /// <param name="g">The g.</param>
         /// <returns></returns>
-        public static Func<TA, Maybe<TC>> Bind<TA, TB, TC>(this Func<TA, Maybe<TB>> f, Func<TB, Maybe<TC>> g) => a => f(a).SelectMany(g);
+        public static Func<TA, Maybe<TC>> Bind<TA, TB, TC>(this Func<TA, Maybe<TB>> f, Func<TB, Maybe<TC>> g)
+        {
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
+            if (g == null)
+            {
+                throw new ArgumentNullException(nameof(g));
+            }
+
+            return a => f(a).SelectMany(g);
+        }
+
+        /// <summary>
+        /// Traverse over the <paramref name="xs"/> sequence appling the specified <paramref name="f"/> on each element.
+        /// </summary>
+        /// <typeparam name="TA"></typeparam>
+        /// <typeparam name="TB"></typeparam>
+        /// <param name="xs"></param>
+        /// <param name="f"></param>
+        /// <returns></returns>
+        public static Maybe<IEnumerable<TB>> Traverse<TA, TB>(this IEnumerable<TA> xs, Func<TA, Maybe<TB>> f)
+        {
+            if (xs == null)
+            {
+                throw new ArgumentNullException(nameof(xs));
+            }
+
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
+            Func<TB, Collection<TB>, Collection<TB>> cons =
+                (b, bs) => { bs.Add(b); return bs; };
+
+            return xs.Aggregate(
+                Maybe.Just(new Collection<TB>()),
+                (acc, x) => Maybe.Just(cons).Apply(f(x)).Apply(acc))
+                     .Select(bs => bs.AsEnumerable());
+        }
+
+        /// <summary>
+        /// Flip the list of optional values to a optional value of a list.
+        /// </summary>
+        /// <typeparam name="TA"></typeparam>
+        /// <param name="xs"></param>
+        /// <returns></returns>
+        public static Maybe<IEnumerable<TA>> Sequence<TA>(this IEnumerable<Maybe<TA>> xs)
+        {
+            if (xs == null)
+            {
+                throw new ArgumentNullException(nameof(xs));
+            }
+
+            return Traverse(xs, x => x);
+        }
     }
 
     /// <summary>
@@ -392,7 +667,15 @@ namespace System.Functional.Monads
         /// <typeparam name="T"></typeparam>
         /// <param name="xs">The xs.</param>
         /// <returns></returns>
-        public static Maybe<T> FirstOrNothing<T>(this IEnumerable<T> xs) => xs.FirstOrDefault().AsMaybe();
+        public static Maybe<T> FirstOrNothing<T>(this IEnumerable<T> xs)
+        {
+            if (xs == null)
+            {
+                throw new ArgumentNullException(nameof(xs));
+            }
+
+            return xs.FirstOrDefault().AsMaybe();
+        }
 
         /// <summary>
         /// Firsts the or nothing.
@@ -401,7 +684,20 @@ namespace System.Functional.Monads
         /// <param name="xs">The xs.</param>
         /// <param name="f">The f.</param>
         /// <returns></returns>
-        public static Maybe<T> FirstOrNothing<T>(this IEnumerable<T> xs, Func<T, bool> f) => xs.FirstOrDefault(f).AsMaybe();
+        public static Maybe<T> FirstOrNothing<T>(this IEnumerable<T> xs, Func<T, bool> f)
+        {
+            if (xs == null)
+            {
+                throw new ArgumentNullException(nameof(xs));
+            }
+
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
+            return xs.FirstOrDefault(f).AsMaybe();
+        }
 
         /// <summary>
         /// Lasts the or nothing.
@@ -409,7 +705,15 @@ namespace System.Functional.Monads
         /// <typeparam name="T"></typeparam>
         /// <param name="xs">The xs.</param>
         /// <returns></returns>
-        public static Maybe<T> LastOrNothing<T>(this IEnumerable<T> xs) => xs.LastOrDefault().AsMaybe();
+        public static Maybe<T> LastOrNothing<T>(this IEnumerable<T> xs)
+        {
+            if (xs == null)
+            {
+                throw new ArgumentNullException(nameof(xs));
+            }
+
+            return xs.LastOrDefault().AsMaybe();
+        }
 
         /// <summary>
         /// Lasts the or nothing.
@@ -418,7 +722,20 @@ namespace System.Functional.Monads
         /// <param name="xs">The xs.</param>
         /// <param name="f">The f.</param>
         /// <returns></returns>
-        public static Maybe<T> LastOrNothing<T>(this IEnumerable<T> xs, Func<T, bool> f) => xs.LastOrDefault(f).AsMaybe();
+        public static Maybe<T> LastOrNothing<T>(this IEnumerable<T> xs, Func<T, bool> f)
+        {
+            if (xs == null)
+            {
+                throw new ArgumentNullException(nameof(xs));
+            }
+
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
+            return xs.LastOrDefault(f).AsMaybe();
+        }
 
         /// <summary>
         /// Singles the or nothing.
@@ -426,7 +743,15 @@ namespace System.Functional.Monads
         /// <typeparam name="T"></typeparam>
         /// <param name="xs">The xs.</param>
         /// <returns></returns>
-        public static Maybe<T> SingleOrNothing<T>(this IEnumerable<T> xs) => xs.SingleOrDefault().AsMaybe();
+        public static Maybe<T> SingleOrNothing<T>(this IEnumerable<T> xs)
+        {
+            if (xs == null)
+            {
+                throw new ArgumentNullException(nameof(xs));
+            }
+
+            return xs.SingleOrDefault().AsMaybe();
+        }
 
         /// <summary>
         /// Singles the or nothing.
@@ -435,7 +760,15 @@ namespace System.Functional.Monads
         /// <param name="xs">The xs.</param>
         /// <param name="f">The f.</param>
         /// <returns></returns>
-        public static Maybe<T> SingleOrNothing<T>(this IEnumerable<T> xs, Func<T, bool> f) => xs.SingleOrDefault(f).AsMaybe();
+        public static Maybe<T> SingleOrNothing<T>(this IEnumerable<T> xs, Func<T, bool> f)
+        {
+            if (xs == null)
+            {
+                throw new ArgumentNullException(nameof(xs));
+            }
+
+            return xs.SingleOrDefault(f).AsMaybe();
+        }
 
         /// <summary>
         /// Elements at or nothing.
@@ -444,7 +777,15 @@ namespace System.Functional.Monads
         /// <param name="xs">The xs.</param>
         /// <param name="i">The i.</param>
         /// <returns></returns>
-        public static Maybe<T> ElementAtOrNothing<T>(this IEnumerable<T> xs, int i) => xs.ElementAtOrDefault(i).AsMaybe();
+        public static Maybe<T> ElementAtOrNothing<T>(this IEnumerable<T> xs, int i)
+        {
+            if (xs == null)
+            {
+                throw new ArgumentNullException(nameof(xs));
+            }
+
+            return xs.ElementAtOrDefault(i).AsMaybe();
+        }
 
         /// <summary>
         /// Chooses the specified f.
@@ -455,6 +796,16 @@ namespace System.Functional.Monads
         /// <returns></returns>
         public static IEnumerable<T> Choose<T>(this IEnumerable<T> xs, Func<T, Maybe<T>> f)
         {
+            if (xs == null)
+            {
+                throw new ArgumentNullException(nameof(xs));
+            }
+
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
             return xs.Select(f).Aggregate(
                 new Collection<T>(), 
                 (acc, x) => { x.Do(acc.Add); return acc; });
