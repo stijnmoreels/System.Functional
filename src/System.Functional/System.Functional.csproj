@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
-    <Configurations>MyDebug;Debug;Release</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU;x86</Platforms>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
@@ -13,7 +13,9 @@
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <PackageId>system-functional</PackageId>
-    <PackageDescription></PackageDescription>
+    <PackageVersion>1.0.3</PackageVersion>
+    <PackageDescription>
+    </PackageDescription>
     <PackageTags>Functional Extensions Chaining Piping Declaritive</PackageTags>
     <PackageIconUrl>https://raw.githubusercontent.com/stijnmoreels/System.Functional/master/docs/images/icon.png</PackageIconUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/stijnmoreels/System.Functional/master/LICENSE.txt</PackageLicenseUrl>
@@ -31,5 +33,4 @@
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
     <DocumentationFile>bin\Release\netstandard2.0\System.Functional.xml</DocumentationFile>
   </PropertyGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

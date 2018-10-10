@@ -58,9 +58,19 @@ namespace System.Functional.Monads
         /// <param name="value">The value.</param>
         private Maybe(TA value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             _isPresent = true;
             _value = value;
         }
+
+        /// <summary>
+        /// Gets in a unsafe (could throw if not present) manner the value wrapped in the <see cref="Maybe{TA}"/>.
+        /// </summary>
+        public TA UnsafeGet => _isPresent ? _value : throw new InvalidOperationException("No value present in this instance (Nothing)");
 
         /// <summary>
         /// Gets a missing value representation for the given type <typeparamref name="TA"/>.
@@ -334,7 +344,7 @@ namespace System.Functional.Monads
         /// <returns>The result of the operator.</returns>
         public static bool operator ==(Maybe<TA> x, Maybe<TA> y)
         {
-            return !(x is null) && x.Equals(y);
+            return Equals(x, y);
         }
 
         /// <summary>
@@ -345,7 +355,7 @@ namespace System.Functional.Monads
         /// <returns>The result of the operator.</returns>
         public static bool operator !=(Maybe<TA> x, Maybe<TA> y)
         {
-            return !(x == y);
+            return !Equals(x, y);
         }
 
         /// <summary>
@@ -791,10 +801,11 @@ namespace System.Functional.Monads
         /// Chooses the specified f.
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <param name="xs">The xs.</param>
         /// <param name="f">The f.</param>
         /// <returns></returns>
-        public static IEnumerable<T> Choose<T>(this IEnumerable<T> xs, Func<T, Maybe<T>> f)
+        public static IEnumerable<TResult> Choose<T, TResult>(this IEnumerable<T> xs, Func<T, Maybe<TResult>> f)
         {
             if (xs == null)
             {
@@ -807,7 +818,7 @@ namespace System.Functional.Monads
             }
 
             return xs.Select(f).Aggregate(
-                new Collection<T>(), 
+                new Collection<TResult>(), 
                 (acc, x) => { x.Do(acc.Add); return acc; });
         }
     }

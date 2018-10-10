@@ -45,7 +45,7 @@ let docs = "./docs/"
 
 let isAppVeyorBuild = buildServer = BuildServer.AppVeyor
 let buildDate = DateTime.UtcNow
-let buildVersion = 
+let buildVersion =
     let isVersionTag tag = Version.TryParse tag |> fst
     let hasRepoVersionTag = isAppVeyorBuild && AppVeyorEnvironment.RepoTag && isVersionTag AppVeyorEnvironment.RepoTagName
     let assemblyVersion = if hasRepoVersionTag then AppVeyorEnvironment.RepoTagName else release.NugetVersion
@@ -119,17 +119,9 @@ Target "RunTests" <| fun _ ->
 //     |> releaseDraft
 //     |> Async.RunSynchronously
 
-Target "Docs" <| fun _ ->
-    let input = sprintf "./%s/%s.xml" output projectName
-    shellExec 
-        "./packages/Vsxmd/tools/Vsxmd.exe" 
-        (sprintf "%s %s%s" input docs "api-reference.md")
-        "."
-
 "Clean"
 ==> "Restore"
 ==> "Build"
 ==> "RunTests"
-==> "Docs"
 
 RunTargetOrDefault "RunTests"

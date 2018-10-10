@@ -59,6 +59,11 @@ namespace System.Functional.Monads
         /// <param name="l">The l.</param>
         private Either(TLeft l)
         {
+            if (l == null)
+            {
+                throw new ArgumentNullException(nameof(l));
+            }
+
             _isLeft = true;
             _isRight = false;
 
@@ -71,11 +76,26 @@ namespace System.Functional.Monads
         /// <param name="r">The r.</param>
         private Either(TRight r)
         {
+            if (r == null)
+            {
+                throw new ArgumentNullException(nameof(r));
+            }
+
             _isLeft = false;
             _isRight = true;
 
             _right = r;
         }
+
+        /// <summary>
+        /// Gets in a unsafe (could throw if instance is right) manner the wrapped left value of the <see cref="Either{TLeft,TRight}"/>.
+        /// </summary>
+        public TLeft UnsafeLeft => _isLeft ? _left : throw new InvalidOperationException("No left value is present, this instance is a 'right' instance");
+
+        /// <summary>
+        /// Gets in a unsafe (could throw if instance is right) manner the wrapped right value of the <see cref="Either{TLeft,TRight}"/>.
+        /// </summary>
+        public TRight UnsafeRight => _isRight ? _right : throw new InvalidOperationException("No right value is present, this instance is a 'left' instance");
 
         /// <summary>
         /// Creates a new <see cref="Either{TLeft,TRight}" /> on the left side.
@@ -451,7 +471,7 @@ namespace System.Functional.Monads
         /// </returns>
         public static bool operator ==(Either<TLeft, TRight> x, Either<TLeft, TRight> y)
         {
-            return !(x is null) && x.Equals(y);
+            return Equals(x, y);
         }
 
         /// <summary>
@@ -462,7 +482,7 @@ namespace System.Functional.Monads
         /// <returns>The result of the operator.</returns>
         public static bool operator !=(Either<TLeft, TRight> x, Either<TLeft, TRight> y)
         {
-            return !(x == y);
+            return !Equals(x, y);
         }
 
         /// <summary>

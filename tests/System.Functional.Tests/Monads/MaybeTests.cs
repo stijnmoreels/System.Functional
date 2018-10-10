@@ -1,4 +1,5 @@
 ﻿using System.Functional.Monads;
+using System.Linq;
 using FsCheck;
 using FsCheck.Xunit;
 using Xunit;
@@ -15,7 +16,7 @@ namespace System.Functional.Tests.Monads
         }
 
         [Property]
-        public bool Just_Something_Is_Just_Something(string s)
+        public bool Just_Something_Is_Just_Something(int s)
         {
             // ReSharper disable once EqualExpressionComparison
             return Maybe.Just(s) == Maybe.Just(s);
@@ -104,12 +105,21 @@ namespace System.Functional.Tests.Monads
         }
 
         [DomainProperty]
-        public Property Zip_Holds(Maybe<string> maybeX, Maybe<string> maybeY, Func<string, string, string> f)
+        public Property Zip_Holds(Maybe<int> maybeX, Maybe<int> maybeY, Func<int, int, int> f)
         {
-            Maybe<string> sut = maybeX.Zip(maybeY, f);
+            Maybe<int> sut = maybeX.Zip(maybeY, f);
             return sut.Equals(maybeX.SelectMany(x => maybeY.Select(y => f(x, y))))
                 .ToProperty()
-                .Or(sut.Equals(Maybe<string>.Nothing));
+                .Or(sut.Equals(Maybe<int>.Nothing));
+        }
+
+        [Property]
+        public bool Choose_Holds(NonEmptyArray<bool> xs, int value)
+        {
+            return xs.Get
+              .Select(x => x.ThenMaybe(value))
+              .Choose(x => x)
+              .SequenceEqual(Enumerable.Repeat(value, xs.Get.Count(x => x)));
         }
     }
 }

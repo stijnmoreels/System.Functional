@@ -5,10 +5,4 @@ build_script:
 test: off
 version: '{build}'
 artifacts:
-  - path: bin\*.nupkg
-deploy:
-- provider: NuGet
-  api_key:
-    secure: QNo4JGKb51SnNDdk5vGVNkAp0sA/Or0CEX8tDe7e/fyigmUO99udtldbglogGNgU
-  on:
-    branch: master       # remove to push symbols to SymbolSource.org
+  - path: bin
