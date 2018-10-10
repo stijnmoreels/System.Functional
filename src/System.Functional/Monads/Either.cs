@@ -16,6 +16,11 @@ namespace System.Functional.Monads
         /// <returns></returns>
         public static Either<TLeft, TRight> Left<TLeft, TRight>(TLeft l)
         {
+            if (l == null)
+            {
+                throw new ArgumentNullException(nameof(l));
+            }
+
             return Either<TLeft, TRight>.Left(l);
         }
 
@@ -28,6 +33,11 @@ namespace System.Functional.Monads
         /// <returns></returns>
         public static Either<TLeft, TRight> Right<TLeft, TRight>(TRight r)
         {
+            if (r == null)
+            {
+                throw new ArgumentNullException(nameof(r));
+            }
+
             return Either<TLeft, TRight>.Right(r);
         }
     }
@@ -92,14 +102,30 @@ namespace System.Functional.Monads
         /// </summary>
         /// <param name="l">The l.</param>
         /// <returns></returns>
-        public static Either<TLeft, TRight> Left(TLeft l) => new Either<TLeft, TRight>(l);
+        public static Either<TLeft, TRight> Left(TLeft l)
+        {
+            if (l == null)
+            {
+                throw new ArgumentNullException(nameof(l));
+            }
+
+            return new Either<TLeft, TRight>(l);
+        }
 
         /// <summary>
         /// Creates a new <see cref="Either{TLeft,TRight}" /> on the right side.
         /// </summary>
         /// <param name="r">The r.</param>
         /// <returns></returns>
-        public static Either<TLeft, TRight> Right(TRight r) => new Either<TLeft, TRight>(r);
+        public static Either<TLeft, TRight> Right(TRight r)
+        {
+            if (r == null)
+            {
+                throw new ArgumentNullException(nameof(r));
+            }
+
+            return new Either<TLeft, TRight>(r);
+        }
 
         /// <summary>
         /// Projects the left side to another value.
@@ -109,6 +135,11 @@ namespace System.Functional.Monads
         /// <returns></returns>
         public Either<TOther, TRight> SelectLeft<TOther>(Func<TLeft, TOther> f)
         {
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
             return _isLeft 
                 ? new Either<TOther, TRight>(f(_left)) 
                 : new Either<TOther, TRight>(_right);
@@ -122,6 +153,11 @@ namespace System.Functional.Monads
         /// <returns></returns>
         public Either<TLeft, TOther> SelectRight<TOther>(Func<TRight, TOther> f)
         {
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
             return _isRight
                 ? new Either<TLeft, TOther>(f(_right)) 
                 : new Either<TLeft, TOther>(_left);
@@ -135,6 +171,11 @@ namespace System.Functional.Monads
         /// <returns></returns>
         public Either<TOther, TRight> SelectManyLeft<TOther>(Func<TLeft, Either<TOther, TRight>> f)
         {
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
             return _isLeft
                 ? f(_left)
                 : new Either<TOther, TRight>(_right);
@@ -148,6 +189,11 @@ namespace System.Functional.Monads
         /// <returns></returns>
         public Either<TLeft, TOther> SelectManyRight<TOther>(Func<TRight, Either<TLeft, TOther>> f)
         {
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
             return _isRight
                 ? f(_right)
                 : new Either<TLeft, TOther>(_left);
@@ -160,6 +206,11 @@ namespace System.Functional.Monads
         /// <returns></returns>
         public Either<TLeft, TRight> DoLeft(Action<TLeft> f)
         {
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
             if (_isLeft) { f(_left); }
             return this;
         }
@@ -171,6 +222,11 @@ namespace System.Functional.Monads
         /// <returns></returns>
         public Either<TLeft, TRight> DoRight(Action<TRight> f)
         {
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
             if (_isRight) { f(_right); }
             return this;
         }
@@ -184,6 +240,11 @@ namespace System.Functional.Monads
         /// <returns></returns>
         public TResult AggregateLeft<TResult>(TResult seed, Func<TResult, TLeft, TResult> f)
         {
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
             return _isLeft ? f(seed, _left) : seed;
         }
 
@@ -196,6 +257,11 @@ namespace System.Functional.Monads
         /// <returns></returns>
         public TResult AggregateRight<TResult>(TResult seed, Func<TResult, TRight, TResult> f)
         {
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
             return _isRight ? f(seed, _right) : seed;
         }
 
@@ -212,6 +278,16 @@ namespace System.Functional.Monads
             Either<TOtherLeft, TOtherRight> y,
             Func<TLeft, TOtherLeft, TResult> f)
         {
+            if (y == null)
+            {
+                throw new ArgumentNullException(nameof(y));
+            }
+
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
             return _isLeft && y._isLeft
                 ? new Either<TResult, TRight>(f(_left, y._left)) 
                 : new Either<TResult, TRight>(_right);
@@ -230,6 +306,16 @@ namespace System.Functional.Monads
             Either<TOtherLeft, TOtherRight> y,
             Func<TRight, TOtherRight, TResult> f)
         {
+            if (y == null)
+            {
+                throw new ArgumentNullException(nameof(y));
+            }
+
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
             return _isRight && y._isRight
                 ? new Either<TLeft, TResult>(f(_right, y._right)) 
                 : new Either<TLeft, TResult>(_left);
@@ -253,7 +339,29 @@ namespace System.Functional.Monads
             Func<TOtherLeft, TProp> g,
             Func<TLeft, TOtherLeft, TResult> h)
         {
-            return _isLeft && y._isLeft && EqualityComparer<TProp>.Default.Equals(f(_left), g(y._left))
+            if (y == null)
+            {
+                throw new ArgumentNullException(nameof(y));
+            }
+
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
+            if (g == null)
+            {
+                throw new ArgumentNullException(nameof(g));
+            }
+
+            if (h == null)
+            {
+                throw new ArgumentNullException(nameof(h));
+            }
+
+            return _isLeft 
+                   && y._isLeft 
+                   && EqualityComparer<TProp>.Default.Equals(f(_left), g(y._left))
                 ? new Either<TResult, TRight>(h(_left, y._left))
                 : new Either<TResult, TRight>(_right);
         }
@@ -276,7 +384,29 @@ namespace System.Functional.Monads
             Func<TOtherRight, TProp> g,
             Func<TRight, TOtherRight, TResult> h)
         {
-            return _isRight && y._isRight && EqualityComparer<TProp>.Default.Equals(f(_right), g(y._right))
+            if (y == null)
+            {
+                throw new ArgumentNullException(nameof(y));
+            }
+
+            if (f == null)
+            {
+                throw new ArgumentNullException(nameof(f));
+            }
+
+            if (g == null)
+            {
+                throw new ArgumentNullException(nameof(g));
+            }
+
+            if (h == null)
+            {
+                throw new ArgumentNullException(nameof(h));
+            }
+
+            return _isRight 
+                   && y._isRight 
+                   && EqualityComparer<TProp>.Default.Equals(f(_right), g(y._right))
                 ? new Either<TLeft, TResult>(h(_right, y._right))
                 : new Either<TLeft, TResult>(_left);
         }
@@ -385,6 +515,16 @@ namespace System.Functional.Monads
             this Either<Func<TLeft, TResult>, TRight> eitherF, 
             Either<TLeft, TRight> eitherX)
         {
+            if (eitherF == null)
+            {
+                throw new ArgumentNullException(nameof(eitherF));
+            }
+
+            if (eitherX == null)
+            {
+                throw new ArgumentNullException(nameof(eitherX));
+            }
+
             return eitherF.SelectManyLeft(eitherX.SelectLeft);
         }
 
@@ -401,6 +541,16 @@ namespace System.Functional.Monads
             this Either<TLeft, Func<TRight, TResult>> eitherF,
             Either<TLeft, TRight> eitherX)
         {
+            if (eitherF == null)
+            {
+                throw new ArgumentNullException(nameof(eitherF));
+            }
+
+            if (eitherX == null)
+            {
+                throw new ArgumentNullException(nameof(eitherX));
+            }
+
             return eitherF.SelectManyRight(eitherX.SelectRight);
         }
     }
