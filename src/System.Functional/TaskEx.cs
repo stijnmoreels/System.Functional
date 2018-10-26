@@ -84,45 +84,6 @@ namespace System.Functional
         }
 
         /// <summary>
-        /// Transforms a list of <see cref="Task{TResult}"/>'s into a <see cref="Task{TResult}"/> of a list.
-        /// </summary>
-        /// <typeparam name="TA"></typeparam>
-        /// <param name="xs"></param>
-        /// <returns></returns>
-        public static Task<IEnumerable<TA>> Sequence<TA>(this IEnumerable<Task<TA>> xs)
-        {
-            if (xs == null)
-            {
-                throw new ArgumentNullException(nameof(xs));
-            }
-
-            return Task.WhenAll(xs).Select(x => x.AsEnumerable());
-        }
-
-        /// <summary>
-        /// Transforms a binding function to tasks on a list of <see cref="Task{TResult}"/>'s into a <see cref="Task{TResult}"/> of a list.
-        /// </summary>
-        /// <typeparam name="TA"></typeparam>
-        /// <typeparam name="TB"></typeparam>
-        /// <param name="xs"></param>
-        /// <param name="f"></param>
-        /// <returns></returns>
-        public static Task<IEnumerable<TB>> Traverse<TA, TB>(this IEnumerable<Task<TA>> xs, Func<TA, Task<TB>> f)
-        {
-            if (xs == null)
-            {
-                throw new ArgumentNullException(nameof(xs));
-            }
-
-            if (f == null)
-            {
-                throw new ArgumentNullException(nameof(f));
-            }
-
-            return Task.WhenAll(xs).SelectMany(x => Task.WhenAll(x.Select(f)).Select(y => y.AsEnumerable()));
-        }
-
-        /// <summary>
         /// Run some 'dead-end' function on the <see cref="Task"/> wraped value.
         /// </summary>
         /// <typeparam name="TA">The type of a.</typeparam>
@@ -588,6 +549,49 @@ namespace System.Functional
             }
 
             return source.ContinueWith(async t => t.Status == TaskStatus.Faulted ? await otherTask() : t.Result).Unwrap();
+        }
+
+        /// <summary>
+        /// Traverse the given sequence into a <see cref="Task"/> of a sequence using the specified <paramref name="binder"/> function.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="xs"></param>
+        /// <param name="binder"></param>
+        /// <returns></returns>
+        public static async Task<IEnumerable<TResult>> Traverse<T, TResult>(
+            this IEnumerable<T> xs,
+            Func<T, Task<TResult>> binder)
+        {
+            if (xs == null)
+            {
+                throw new ArgumentNullException(nameof(xs));
+            }
+
+            if (binder == null)
+            {
+                throw new ArgumentNullException(nameof(binder));
+            }
+
+            TResult[] results = await Task.WhenAll(xs.Select(binder));
+            return results.AsEnumerable();
+        }
+
+        /// <summary>
+        /// Sequence the given sequence into a <see cref="Task"/> of a sequence.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="xs"></param>
+        /// <returns></returns>
+        public static async Task<IEnumerable<T>> Sequence<T>(this IEnumerable<Task<T>> xs)
+        {
+            if (xs == null)
+            {
+                throw new ArgumentNullException(nameof(xs));
+            }
+
+            T[] results = await Task.WhenAll(xs);
+            return results.AsEnumerable();
         }
     }
 
