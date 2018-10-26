@@ -147,7 +147,6 @@ namespace System.Functional.Monads
         /// <typeparam name="TB">The type of the b.</typeparam>
         /// <param name="seed">The seed.</param>
         /// <param name="f">The f.</param>
-        /// <returns></returns>
         public TB Aggregate<TB>(TB seed, Func<TB, TA, TB> f)
         {
             if (seed == null)
